@@ -1,0 +1,20 @@
+uproot
+numpy
+seaborn
+matplotlib
+scipy
+aesara
+
+# JAX with CUDA (CPU fallback if CUDA not available)
+#jax[cuda12_pip] -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+# TensorFlow with GPU support (for CUDA 12.1+)
+#tensorflow==2.15.0
+
+keras==3.9.2
+jax[cuda12]==0.4.28
+flax
+tensorflow[and-cuda]
+#~=2.18.0
+pymc
+pyqt5
