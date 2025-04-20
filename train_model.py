@@ -93,20 +93,16 @@ def get_trained_model(model_file):
 
     return approximator 
 
-def train_model(approximator, training_data, validation_data, model_name="test_model_lstm"):
+def train_model(approximator, training_data, validation_data, epochs=10):
 
-    approximator.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-                         loss=keras.losses.Poisson()
+    approximator.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-4)
+                         #loss=keras.losses.Poisson()
                          )
     batch_size = 2048
-
-    print("Training data: ", training_data)
 
     offline_dataset = bf.datasets.OfflineDataset(training_data, batch_size=batch_size, adapter=approximator.adapter)
     offline_dataset_validation = bf.datasets.OfflineDataset(validation_data, batch_size=batch_size, adapter=approximator.adapter)
 
-    approximator.summary()
-
-    history = approximator.fit(dataset=offline_dataset, validation_data=offline_dataset, epochs=10)
+    history = approximator.fit(dataset=offline_dataset, validation_data=offline_dataset_validation, epochs=epochs)
     
     return history

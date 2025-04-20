@@ -127,7 +127,7 @@ def get_data(files,
     all_data = []
 
     for i, f in enumerate(files):
-        print(f"loading {i}/{len(files)}: {f}")
+        print(f"loading {i+1}/{len(files)}: {f}")
         file = uproot.open(f)
 
         # Get true parameters
@@ -187,9 +187,7 @@ def get_data(files,
     all_theta = np.vstack(all_true)
     all_x_data = np.vstack(all_data)
 
-    print(all_x_data.shape)
-
-        # Normalize if requested
+    # Normalize if requested
     if spectra_norm is not None and true_norm is not None:
         all_x_data = (all_x_data - spectra_norm[0]) / spectra_norm[1]
         all_theta = (all_theta - true_norm[0]) / true_norm[1]
