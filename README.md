@@ -5,9 +5,9 @@ Using NOvA MC to train an Amortized model to see if we can train on FHC + RHC, n
 
 ## Tasks
 
-- [ ] Show ABI feasible for complex models like NOvA
-  - [ ] Stats-only
-  - [ ] With systematics
+- [x] Show ABI feasible for complex models like NOvA
+  - [x] Stats-only
+  - [x] With systematics
 - [ ] Create out-of sample tests to further validate the amortized model.
 - [ ] Look into ABI accuracy by evaluating Simulation-Based Calibration diagnostics to check for convergence: goodbye p-values!
 - [ ] Implement Sensitivity-Aware ABI (different priors, try fake datasets if available)
@@ -27,13 +27,26 @@ Training amortized NOvA model on emulated data:
 
 **Steps for the next notebook**:
 
-1. Re-do using **predictions** rather than **expectations** (so poisson-fluctuated expectations).
-2. Include all the systematic parameters. This could be done in two ways.
-    1. Draw systematics from their priors when creating **predictions**, so the predictions are systematically fluctuated: but do not include systematic parameters in the "labels" or "true parameters". This will effectively marginalize our spectra over the systematic parameters and let network figure the systematic shifts by itself. Pros: far easier to deal with. Cons: cannot infer about systematic parameters.
+1. **(DONE)** Re-do using **predictions** rather than **expectations** (so poisson-fluctuated expectations).
+2. **(DONE)** Include all the systematic parameters. This could be done in two ways.
+    1. **(DONE)** Draw systematics from their priors when creating **predictions**, so the predictions are systematically fluctuated: but do not include systematic parameters in the "labels" or "true parameters". This will effectively marginalize our spectra over the systematic parameters and let network figure the systematic shifts by itself. Pros: far easier to deal with. Cons: cannot infer about systematic parameters.
     2. Draw the systematics from priors when creating predictions like above, but do include them in the "labels" or "true parameters" during training. This will increase the number of labels from 5 to ~60? Pros: can infer about the systematic parameters. Cons: more difficult, might require more complex network.
-3. Include the POT as one of the parameters to vary when creating simulations! This means the amortized model could be used for future sensitivity studies. POT could be added into the network in two ways:
-    1. Add POT as "inference_conditions" parameters to the network. This is probably the more correct way.
-    2. Add POT as two extra bins to our merged spectrum / input data vector. This *might* work too, and is probably easier than above.
-4. See if a simpler network could suffice: reduce the layer sizes & number of layers, increase dropout.
 
 ---
+
+### 2. `notebooks/train_model_simulated.ipynb`
+
+Training amortized NOvA model on simulated data predictions with systematics included.
+
+1. Emulated data: 20M **predictions** for nueLowE FHC, nue FHC, nue RHC, numu FHC & numu RHC (created for all numu quartiles & merged into one FHC & one RHC spectra), created for all the oscillation & systematic parameters, drawn from gaussian priros for th13 and systematics, uniform otherwise.
+
+2. Diagnostics show far less, but still existant, overfitting, while recovering the parameters well.
+
+3. Tested on Asimov A, B and C data, with the posteriors looking very comparable by eye.
+
+**Steps for the next notebook**:
+
+1. Include the POT as one of the parameters to vary when creating simulations! This means the amortized model could be used for future sensitivity studies. POT could be added into the network in two ways:
+    1. Add POT as "inference_conditions" parameters to the network. This is probably the more correct way.
+    2. Add POT as two extra bins to our merged spectrum / input data vector. This *might* work too, and is probably easier than above.
+1. See if a simpler network could suffice: reduce the layer sizes & number of layers, increase dropout.
