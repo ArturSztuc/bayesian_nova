@@ -56,23 +56,43 @@ def plot_boxes(g, boxes, dataset_id, color="blue"):
 
 def get_approximator(summary_network_type="time_series"):
     summary_net = None
+    inference_net = None
 
+    # Summary network setup
     if summary_network_type == "deep_set":
         summary_net =bf.networks.DeepSet(
                 summary_dim=256, 
                 depth=4,
                 set_embedding_dim=128,
                 spectral_normalization=True
-            )
+        )
     elif summary_network_type == "time_series":
         summary_net = bf.networks.TimeSeriesNetwork(
-                conv_filters=[64, 128, 256],  # Try deeper if needed
+                conv_filters=[64, 128, 256],
                 kernel_sizes=[1, 1, 1],
                 dense_layers=[256, 128, 64],
                 summary_dim=64
-            )
+        )
+    elif summary_network_type == "time_series_simple":
+        summary_net = bf.networks.TimeSeriesNetwork(
+                conv_filters=[32, 64],
+                kernel_sizes=[1, 1],
+                dense_layers=[64, 32],
+                summary_dim=32,
+                dropout=0.10,
+        )
+    
+    # Inference network setup
+    flowmatching_mlp_args = {'dropout': 0.15,
+                            'spectral_normalization': False}
 
-    inference_net = bf.networks.FlowMatching()
+    #if "simple" in summary_network_type:
+    #    flowmatching_mlp_args['widths'] = (128, 128, 128, 128, 128)
+
+    inference_net = bf.networks.FlowMatching(
+        use_optimal_transport=True,
+        subnet_kwargs=flowmatching_mlp_args
+    )
 
     approximator = bf.approximators.ContinuousApproximator(
             inference_network=inference_net,
@@ -95,10 +115,15 @@ def get_trained_model(model_file):
 
 def train_model(approximator, training_data, validation_data, epochs=10):
 
+    #schedule = keras.optimizers.schedules.CosineDecay(
+    #    initial_learning_rate=1e-3
+    #)
+
     approximator.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-4)
                          #loss=keras.losses.Poisson()
                          )
-    batch_size = 2048
+    #batch_size = 2048
+    batch_size = 4096
 
     offline_dataset = bf.datasets.OfflineDataset(training_data, batch_size=batch_size, adapter=approximator.adapter)
     offline_dataset_validation = bf.datasets.OfflineDataset(validation_data, batch_size=batch_size, adapter=approximator.adapter)

@@ -18,3 +18,4 @@ tensorflow[and-cuda]
 #~=2.18.0
 pymc
 pyqt5
+pydot
